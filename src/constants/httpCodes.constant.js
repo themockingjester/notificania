@@ -8,6 +8,7 @@ module.exports = {
         UN_AUTHORIZED: 401,
         FORBIDDEN: 403,
         NOT_FOUND: 404,
+        NOT_ALLOWED: 405,
         TOO_MANY_REQUESTS: 429,
         INTERNAL_SERVER_ERROR: 500,
         NOT_IMPLEMENTED: 501,
