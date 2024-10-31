@@ -4,7 +4,8 @@
   "description": "A standalone fully-fledged notification server build to send notifications.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/index.js"
   },
   "author": "Yash Mathur",
   "license": "ISC",
