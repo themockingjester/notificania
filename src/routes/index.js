@@ -1,15 +1,15 @@
 const router = require("express").Router();
 const system = require("./system")
+const service = require("./service")
 
 
-
-module.exports = (diContainer) => {
-    const { config, database } = diContainer;
+module.exports = () => {
 
     // system route
     router.use("/system", system)
 
-    // Add more routes here, and use `diContainer` as needed
 
+    // service route
+    router.use("/service", service)
     return router;
 };

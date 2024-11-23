@@ -15,7 +15,7 @@ class MySqlDatabase extends AbstractDatabaseClass {
 
             // creating connection to database
             this.sequelize = new Sequelize(
-                '',
+                config.DATABASE.MYSQL.DATABASE_NAME,
                 config.DATABASE.MYSQL.USER_NAME,
                 config.DATABASE.MYSQL.PASSWORD,
                 {
@@ -23,8 +23,6 @@ class MySqlDatabase extends AbstractDatabaseClass {
                     dialect: 'mysql'
                 }
             );
-
-
         }
 
     }
@@ -34,9 +32,8 @@ class MySqlDatabase extends AbstractDatabaseClass {
         // checking if the database is enabled
         if (this.isThisDBEnabled) {
             await this.sequelize.authenticate()
-            await this.sequelize.query(`CREATE DATABASE IF NOT EXISTS ${config.DATABASE.MYSQL.DATABASE_NAME};`);
-            await this.sequelize.query(`USE ${config.DATABASE.MYSQL.DATABASE_NAME};`);
-
+            // await this.sequelize.query(`CREATE DATABASE IF NOT EXISTS ${config.DATABASE.MYSQL.DATABASE_NAME};`);
+            // await this.sequelize.query(`USE ${config.DATABASE.MYSQL.DATABASE_NAME};`);
             // successfully got connected
         } else {
             throw new Error(DATABASE_CONSTANTS.ERROR_MESSAGES.REQUESTED_DATABASE_IS_NOT_ENABLED_IN_CONFIG)

@@ -21,19 +21,19 @@ module.exports = (sequelizeHandler, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            deactivatedBy: {
+            deactivated_by: {
                 type: DataTypes.UUID,
             },
-            deactivatedAt: {
+            deactivated_at: {
                 type: 'TIMESTAMP',
             },
-            createdBy: {
+            created_by: {
                 type: DataTypes.UUID,
             },
-            updatedBy: {
+            updated_by: {
                 type: DataTypes.UUID,
             },
-            recordStatus: {
+            record_status: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: 1,
             },
