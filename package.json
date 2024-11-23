@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.21.1",
-    "kafkajs": "^2.2.4"
+    "kafkajs": "^2.2.4",
+    "mysql2": "^3.11.3",
+    "sequelize": "^6.37.5"
   }
 }
