@@ -12,16 +12,18 @@ class BaseRepository {
         return this.currModel.bulkCreate(dataArray, { ...options });
     };
 
-    findOne = function ({ whereClause }) {
+    findOne = function ({ whereClause, include }) {
 
         return this.currModel.findOne({
             where: whereClause,
+            include: include
         });
     };
 
-    findAll = function ({ whereClause }) {
+    findAll = function ({ whereClause, include }) {
         return this.currModel.findAll({
             where: whereClause,
+            include: include
         });
 
     };
