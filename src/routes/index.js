@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const system = require("./system")
 const service = require("./service")
-
+const serviceConfig = require("./serviceConfig")
 
 module.exports = () => {
 
@@ -11,5 +11,8 @@ module.exports = () => {
 
     // service route
     router.use("/service", service)
+
+    // service route
+    router.use("/service-config", serviceConfig)
     return router;
 };
