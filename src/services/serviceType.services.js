@@ -1,7 +1,10 @@
 const ServiceTypeRepository = require("../repositories/serviceType.repository")
+const { Op } = require("sequelize");
+
 const { resultObject } = require("../utils/common.utils")
 const { HTTP_CODES } = require("../constants/httpCodes.constant")
-const { exportedDIContainer } = require("../exportedDiContainer")
+const { exportedDIContainer } = require("../exportedDiContainer");
+const { DATABASE_CONSTANTS } = require("../constants/database.constant");
 
 class ServiceTypeService {
     serviceTypeRepository
@@ -18,27 +21,27 @@ class ServiceTypeService {
             this.isDefaultDbModelSet = true
         }
     }
-    findOneServiceType = async ({ whereClause }) => {
+    findOneServiceTypeCore = async ({ whereClause, include }) => {
         await this.checkForDefaultModel()
-        return this.serviceTypeRepository.findOne({ whereClause })
+        return this.serviceTypeRepository.findOne({ whereClause, include })
     }
 
-    findAllServiceTypes = async ({ whereClause }) => {
+    findAllServiceTypesCore = async ({ whereClause, include }) => {
         await this.checkForDefaultModel()
 
-        return this.serviceTypeRepository.findAll({ whereClause })
+        return this.serviceTypeRepository.findAll({ whereClause, include })
     }
-    createServiceType = async ({ data, options }) => {
+    createServiceTypeCore = async ({ data, options }) => {
         await this.checkForDefaultModel()
 
         return this.serviceTypeRepository.create({ data, options })
     }
-    deactivateServiceType = async ({ whereClause, options }) => {
+    deactivateServiceTypeCore = async ({ whereClause, options }) => {
         await this.checkForDefaultModel()
 
         return this.serviceTypeRepository.deactivate({ whereClause, options })
     }
-    updateServiceType = async ({ data, whereClause, options }) => {
+    updateServiceTypeCore = async ({ data, whereClause, options }) => {
         await this.checkForDefaultModel()
 
         return this.serviceTypeRepository.update({ data, whereClause, options })
@@ -49,7 +52,7 @@ class ServiceTypeService {
 
         let { service_name } = data
         // checking service type exists or not
-        const serviceTypeExists = await this.findOneServiceType({
+        const serviceTypeExists = await this.findOneServiceTypeCore({
             whereClause: {
                 service_name: service_name,
                 record_status: 1
@@ -57,7 +60,7 @@ class ServiceTypeService {
         })
         if (!serviceTypeExists) {
             // service not found
-            let createdService = await this.createServiceType({ data })
+            let createdService = await this.createServiceTypeCore({ data })
             return resultObject(true, `Created service successfully`, {
                 result: createdService
             }, HTTP_CODES.CREATED)
@@ -65,6 +68,80 @@ class ServiceTypeService {
         return resultObject(false, `Another similar service already exists`, {
 
         }, HTTP_CODES.CONFLICT)
+
+    }
+
+    updateExistingServiceType = async (data, serviceId) => {
+        await this.checkForDefaultModel()
+
+        let { service_name } = data
+
+        // checking service type exists or not
+        const serviceTypeExists = await this.findOneServiceTypeCore({
+            whereClause: {
+                service_name: service_name,
+                id: {
+                    [Op.notIn]: [serviceId]
+                }
+            }
+        })
+        if (serviceTypeExists) {
+            // similar service found
+            return resultObject(false, `Similar Service already exists`, {
+
+            }, HTTP_CODES.CONFLICT)
+        }
+
+        // update the service
+        let updatedService = await this.updateServiceTypeCore({
+            data: {
+                service_name: service_name
+            },
+            whereClause: {
+                id: serviceId
+            }
+        })
+        return resultObject(true, `Updated service successfully`, {
+            result: updatedService
+        }, HTTP_CODES.OK)
+
+    }
+
+    findAllServices = async () => {
+        await this.checkForDefaultModel()
+        const allServices = await this.findAllServiceTypesCore({
+            whereClause: {
+                record_status: 1,
+            },
+            include: [
+                {
+                    model: exportedDIContainer.dbModels[DATABASE_CONSTANTS.TABLES.SERVICE_CONFIG],
+                }
+            ]
+        })
+        return resultObject(true, `Fetched services`, {
+            result: allServices
+        }, HTTP_CODES.OK)
+    }
+
+    findSpecificService = async (serviceId) => {
+        await this.checkForDefaultModel()
+
+        const serviceData = await this.findOneServiceTypeCore({
+            whereClause: {
+                record_status: serviceId,
+                record_status: 1
+            },
+            include: [
+                {
+                    model: exportedDIContainer.dbModels[DATABASE_CONSTANTS.TABLES.SERVICE_CONFIG],
+                }
+            ]
+        })
+
+        return resultObject(true, `Fetched service`, {
+            result: serviceData
+        }, HTTP_CODES.OK)
 
     }
 }

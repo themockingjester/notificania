@@ -38,7 +38,7 @@ module.exports = (sequelizeHandler, DataTypes) => {
     );
 
     ServiceType.associate = function (models) {
-        ServiceType.belongsTo(models.service_config, {
+        ServiceType.hasMany(models.service_config, {
             sourceKey: 'id',
             foreignKey: 'service_id',
         });
