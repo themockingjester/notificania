@@ -2,6 +2,7 @@ const router = require("express").Router();
 const system = require("./system")
 const service = require("./service")
 const serviceConfig = require("./serviceConfig")
+const notificationEvent = require("./notificationEvent")
 
 module.exports = () => {
 
@@ -14,5 +15,9 @@ module.exports = () => {
 
     // service route
     router.use("/service-config", serviceConfig)
+
+    // notification event
+    router.use("/notification-event", notificationEvent)
+
     return router;
 };
