@@ -21,9 +21,9 @@ class ServiceConfigService {
             this.isDefaultDbModelSet = true
         }
     }
-    findOneServiceConfigCore = async ({ whereClause }) => {
+    findOneServiceConfigCore = async ({ whereClause, include }) => {
         await this.checkForDefaultModel()
-        return this.serviceConfigRepository.findOne({ whereClause })
+        return this.serviceConfigRepository.findOne({ whereClause, include })
     }
 
     findAllServiceConfigCore = async ({ whereClause, include }) => {
@@ -72,23 +72,36 @@ class ServiceConfigService {
 
     }
 
-    updateExistingServiceConfig = async (data, serviceId) => {
+    updateExistingServiceConfig = async (data, serviceConfigId) => {
         await this.checkForDefaultModel()
 
-        let { service_name } = data
+        let { key } = data
 
-        // checking service type exists or not
+        if (!key) {
+            return resultObject(false, `key is missing`, {}, HTTP_CODES.BAD_REQUEST)
+        }
+        // fetching service type id
+        const fetchedServiceConfigData = await this.findOneServiceConfigCore({
+            whereClause: {
+                id: serviceConfigId
+            }
+        })
+        if (!fetchedServiceConfigData) {
+            return resultObject(false, `Service config not found`, {}, HTTP_CODES.NOT_FOUND)
+        }
+        // checking similar service type exists or not
         const serviceConfigExists = await this.findOneServiceConfigCore({
             whereClause: {
-                service_name: service_name,
+                key: key,
+                service_id: fetchedServiceConfigData.service_id,
                 id: {
-                    [Op.notIn]: [serviceId]
+                    [Op.notIn]: [serviceConfigId]
                 }
             }
         })
         if (serviceConfigExists) {
             // similar service found
-            return resultObject(false, `Similar Service already exists`, {
+            return resultObject(false, `Similar Service config already exists`, {
 
             }, HTTP_CODES.CONFLICT)
         }
@@ -96,10 +109,10 @@ class ServiceConfigService {
         // update the service config
         let updatedService = await this.updateServiceConfigCore({
             data: {
-                service_name: service_name
+                ...data
             },
             whereClause: {
-                id: serviceId
+                id: serviceConfigId
             }
         })
         return resultObject(true, `Updated service config successfully`, {
@@ -135,6 +148,9 @@ class ServiceConfigService {
             whereClause: {
                 id: serviceConfigId,
                 record_status: 1
+            },
+            include: {
+                model: exportedDIContainer.dbModels[DATABASE_CONSTANTS.TABLES.SERVICE_TYPE]
             }
         })
 

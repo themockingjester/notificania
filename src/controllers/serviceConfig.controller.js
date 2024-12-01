@@ -15,10 +15,10 @@ const addServiceConfigController = async (req, res) => {
 
 
 const updateServiceConfigController = async (req, res) => {
-    let serviceData = req.body
-    const { serviceId } = req.params
+    let serviceConfigData = req.body
+    const { serviceConfigId } = req.params
     try {
-        let result = await ServiceConfigService.updateExistingServiceConfig(serviceData, serviceId)
+        let result = await ServiceConfigService.updateExistingServiceConfig(serviceConfigData, serviceConfigId)
         return res.status(result.code).send(generateResponse(result.success, result.message, result.data, result.code))
     } catch (error) {
         return res.status(HTTP_CODES.INTERNAL_SERVER_ERROR).send(generateResponse(false, SERVER_RESPONSES.INTERNAL_SERVER_ERROR, { error: error.message }, HTTP_CODES.INTERNAL_SERVER_ERROR))
