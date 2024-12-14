@@ -1,15 +1,23 @@
 const router = require("express").Router();
 const system = require("./system")
+const service = require("./service")
+const serviceConfig = require("./serviceConfig")
+const notificationEvent = require("./notificationEvent")
 
-
-
-module.exports = (diContainer) => {
-    const { config, database } = diContainer;
+module.exports = () => {
 
     // system route
     router.use("/system", system)
 
-    // Add more routes here, and use `diContainer` as needed
+
+    // service route
+    router.use("/service", service)
+
+    // service route
+    router.use("/service-config", serviceConfig)
+
+    // notification event
+    router.use("/notification-event", notificationEvent)
 
     return router;
 };
