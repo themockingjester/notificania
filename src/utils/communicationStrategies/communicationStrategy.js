@@ -10,6 +10,10 @@ class CommunicationStrategy {
         this.strategy = strategy;
 
     }
+
+    initialize() {
+
+    }
     /**
      * 
      * @param {object} data 
@@ -17,5 +21,6 @@ class CommunicationStrategy {
     async sendMessage(data) {
         return await this.strategy.sendMessage(data)
     }
+
 }
 module.exports = CommunicationStrategy

@@ -4,6 +4,12 @@ const config = require("../config.json")
 const DI_CONTAINER = {
     config: config,
     databaseHandler: null,
-    dbModels: null
+    dbModels: null,
+    messageChannels: {
+        kafka: {
+            producer: null,
+            consumer: null,
+        }
+    }
 };
 module.exports = DI_CONTAINER

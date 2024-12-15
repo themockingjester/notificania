@@ -15,6 +15,7 @@ class KafkaProducer extends AbstractKafkaProducer {
      */
     async initialize() {
         await producer.connect()
+        console.log('Successfully initialized kafka producer 🚀')
     }
 
     /**
@@ -32,7 +33,10 @@ class KafkaProducer extends AbstractKafkaProducer {
         await producer.send({
             topic: config.SERVER.MESSAGING_CHANNELS.APACHE_KAFKA.TOPIC,
             messages: [
-                { value: message },
+                {
+                    value: message,
+                    key: JSON.parse(message).key
+                },
             ],
         })
 

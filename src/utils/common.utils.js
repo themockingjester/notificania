@@ -1,4 +1,6 @@
 
+const { v4: uuidv4 } = require('uuid');
+
 /**
  * 
  * @param {boolean} success 
@@ -33,6 +35,9 @@ const generateResponse = function (success, message, data, code) {
     };
 };
 
+const generateUUIDV4 = function () {
+    return uuidv4();
+};
 module.exports = {
-    generateResponse, resultObject
+    generateResponse, resultObject, generateUUIDV4
 }
