@@ -1,0 +1,5 @@
+module.exports = {
+    MESSAGING_CHANNEL_RESPONSES: {
+        MESSAGE_ACCEPTED: "MESSAGE_ACCEPTED",
+    }
+}
