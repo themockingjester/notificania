@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelizeHandler, DataTypes) => {
-    const NotificationEventDynamicData = sequelizeHandler.define(
-        'notification_event_dynamic_data',
+    const NotificationEventConfig = sequelizeHandler.define(
+        'notification_event_config',
         {
             id: {
                 type: DataTypes.UUID,
@@ -49,13 +49,13 @@ module.exports = (sequelizeHandler, DataTypes) => {
             ],
         }
     );
-    NotificationEventDynamicData.associate = function (models) {
-        NotificationEventDynamicData.belongsTo(models.notification_event, {
+    NotificationEventConfig.associate = function (models) {
+        NotificationEventConfig.belongsTo(models.notification_event, {
             foreignKey: 'event_id',
             sourceKey: 'id',
         });
     };
-    return NotificationEventDynamicData;
+    return NotificationEventConfig;
 };
 
 
