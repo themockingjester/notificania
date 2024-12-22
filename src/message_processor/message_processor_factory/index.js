@@ -22,7 +22,7 @@ const processMessageByProcessor = (message) => {
 const processFirebaseMessage = (message) => {
     const { serviceType } = message
     if (serviceType == APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES.FIREBASE_PUSH_NOTIFICATION) {
-        return message.messageProcessor.pushNotification()
+        return message.messageProcessor.pushNotificationAux(message)
     } else {
         throw new Error(MESSAGE_LISTENER_INTERNAL_RESPONSES.UNABLE_TO_IDENTIFY_CORRECT_FUNCTION_FOR_GIVEN_SERVICE_TYPE)
     }

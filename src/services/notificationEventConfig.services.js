@@ -121,12 +121,12 @@ class NotificationEventConfigService {
 
     }
 
-    findAllNotificationEventConfigs = async () => {
+    findAllNotificationEventConfigs = async ({ whereClause = {} }) => {
         await this.checkForDefaultModel()
-        console.log(466)
         const allConfigs = await this.findAllNotificationEventConfigCore({
             whereClause: {
-                record_status: 1
+                record_status: 1,
+                ...whereClause
             },
             include: [
                 {
