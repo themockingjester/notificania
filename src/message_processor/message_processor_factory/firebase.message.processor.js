@@ -1,16 +1,25 @@
 const { APPLICATION_CONSTANTS } = require("../../constants/application.constant");
 const { FIREBASE_MESSAGE_PROCESSOR_CONSTANTS } = require("../../constants/message_processor/firebase.message.processor.constant");
-const { MESSAGE_LISTENER_INTERNAL_RESPONSES } = require("../../constants/messangingChannel.constant");
-const { isMessageEventConfigHaveNeededKeys } = require("../../utils/messageUtilities/common.message.utils");
+const { DEFAULT_MESSAGE_PROCESSOR_CONSTANTS } = require("../../constants/message_processor/message.processor.constant");
+const { applyEnhancementAndValidatorsForMessageProcessorOnProvidedData } = require("../../utils/messageProcessorUtils");
+
 
 class FirebaseMessageProcessor {
     processorType = APPLICATION_CONSTANTS.SUPPORTED_MESSAGE_PROCESSOR.FIREBASE_MESSAGE_PROCESSOR
-    pushNotificationAux(message) {
+    async pushNotificationAux(message) {
 
-        const { eventConfig } = message
-        if (!isMessageEventConfigHaveNeededKeys(FIREBASE_MESSAGE_PROCESSOR_CONSTANTS.PUSH_NOTIFICATION.NEEDED_KEYS_FOR_CONFIG, eventConfig)) {
-            throw new Error(MESSAGE_LISTENER_INTERNAL_RESPONSES.MISSING_NEEDED_KEYS_FROM_EVENT_CONFIG_OF_MESSAGE)
-        }
+        await applyEnhancementAndValidatorsForMessageProcessorOnProvidedData(
+            {
+                enhancementType: DEFAULT_MESSAGE_PROCESSOR_CONSTANTS.MESSAGE_ENHANCER_TYPES.DEFAULT,
+                validatorType: DEFAULT_MESSAGE_PROCESSOR_CONSTANTS.MESSAGE_VALIDATOR_TYPES.DEFAULT,
+                applyValidation: true,
+                applyEnhancement: false,
+                message,
+                configBasedNeedKeysForValidator: FIREBASE_MESSAGE_PROCESSOR_CONSTANTS.PUSH_NOTIFICATION.NEEDED_KEYS_FOR_CONFIG,
+                templateType: APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA.FIREBASE_PUSH_NOTIFICATION.SUPPORTED_MESSAGE_TEMPALTE
+            }
+        )
+
         console.log(message, 3566) // TODO: continue from here
     }
 }
