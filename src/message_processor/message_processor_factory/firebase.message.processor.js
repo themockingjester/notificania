@@ -13,7 +13,7 @@ class FirebaseMessageProcessor {
                 enhancementType: DEFAULT_MESSAGE_PROCESSOR_CONSTANTS.MESSAGE_ENHANCER_TYPES.DEFAULT,
                 validatorType: DEFAULT_MESSAGE_PROCESSOR_CONSTANTS.MESSAGE_VALIDATOR_TYPES.DEFAULT,
                 applyValidation: true,
-                applyEnhancement: false,
+                applyEnhancement: true,
                 message,
                 configBasedNeedKeysForValidator: FIREBASE_MESSAGE_PROCESSOR_CONSTANTS.PUSH_NOTIFICATION.NEEDED_KEYS_FOR_CONFIG,
                 templateType: APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA.FIREBASE_PUSH_NOTIFICATION.SUPPORTED_MESSAGE_TEMPALTE
