@@ -50,7 +50,7 @@ class NotificationEventConfigService {
     addNewNotificationEventConfig = async (data) => {
         await this.checkForDefaultModel()
 
-        let { key, event_id } = data
+        let { key, event_id, value } = data
         // checking notification event config exists or not
         const notificationEventConfigExists = await this.findOneNotificationEventConfigCore({
             whereClause: {

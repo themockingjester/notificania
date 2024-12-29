@@ -49,6 +49,7 @@ const attachMessageEventBasedConfig = async (receivedMessage) => {
     if (!config) {
         throw new Error(MESSAGE_LISTENER_INTERNAL_RESPONSES.NO_NOTIFICATION_EVENT_BASED_CONFIG_FOUND)
     }
+
     const refinedConfigs = prepareProperObjectOutOfNotificationEventConfigDetailsForAMessage(config)
     receivedMessage.eventConfig = refinedConfigs
 
