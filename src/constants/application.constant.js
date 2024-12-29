@@ -5,6 +5,14 @@ module.exports = {
         },
         SUPPORTED_MESSAGE_PROCESSOR: {
             FIREBASE_MESSAGE_PROCESSOR: "FIREBASE_MESSAGE_PROCESSOR"
+        },
+        SUPPORTED_MESSAGE_TEMPLATES: {
+            EJS_TEMPLATE: "EJS_TEMPLATE"
+        },
+        SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA: {
+            FIREBASE_PUSH_NOTIFICATION: {
+                SUPPORTED_MESSAGE_TEMPALTE: "EJS_TEMPLATE"
+            }
         }
     }
 }
