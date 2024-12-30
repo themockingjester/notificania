@@ -7,6 +7,8 @@ const { applyEnhancementAndValidatorsForMessageProcessorOnProvidedData } = requi
 const { config } = require("../../di-container");
 const { MESSAGE_LISTENER_INTERNAL_RESPONSES } = require("../../constants/messangingChannel.constant");
 
+const { resultObject } = require("../../utils/common.utils");
+
 
 class MailMessageProcessor {
     processorType = APPLICATION_CONSTANTS.SUPPORTED_MESSAGE_PROCESSOR.MAIL_MESSAGE_PROCESSOR
@@ -24,37 +26,61 @@ class MailMessageProcessor {
             }
         )
 
-        await this.sendMail()
-        console.log(message, 664232) // TODO: continue from here
+        const mailingResponse = await this.sendMail(message)
+        return resultObject(mailingResponse.success, mailingResponse.message, mailingResponse.data, mailingResponse.code)
     }
 
 
 
 
-    async sendMail() {
+    async sendMail(message) {
         let mailingStrategy
         let objBody = {}
+        let mailerUsed = ""
+        let { eventConfig, body, templateBody } = message
         if (config.MAILING_TOOLS.MAILJET.ENABLED) {
             mailingStrategy = getMailingStrategy(mailjetMailingStrategy)
             objBody = {
                 mailjetData: {
                     from: {
-                        email: "y"
+                        email: eventConfig?.senderDefaultMail,
+                        ...(eventConfig?.senderDefaultMailingName ? { name: eventConfig?.senderDefaultMailingName } : {})
                     },
                     to: {
-                        email: "yur13@gmail.com"
+                        email: body?.receipientEmail
                     },
-                    subject: "Test Email",
-                    TextPart: "Hello",
-                    // HTMLPart,
+                    subject: eventConfig?.subject,
+                    // TextPart: eventConfig?.templateBody,
+                    HTMLPart: templateBody
                 }
             }
+            mailerUsed = APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA.SEND_MAIL.MAILER_SUPPORTED.MAILJET
         } else {
             throw new Error(MESSAGE_LISTENER_INTERNAL_RESPONSES.UN_EXPECTED_MAILING_STRATEGY_FOUND)
         }
-        let result = mailingStrategy.sendMail(objBody)
-        console.log(result, 65788) // TODO  : Continuwe from here
+        const coreResponseObject = await mailingStrategy.sendMail(objBody)
+        coreResponseObject.data.mailerUsed = mailerUsed
+        const refinedResponseObject = await this.sendMailAuxResponseAdapter(coreResponseObject)
 
+        return resultObject(refinedResponseObject.success, refinedResponseObject.message, refinedResponseObject.data, refinedResponseObject.code)
+
+    }
+
+
+
+    /**
+     * This function converts the final response into a command similar object format
+     * @param {JSON Object} response 
+     * @returns JSON
+     */
+    async sendMailAuxResponseAdapter(response) {
+        // Here we can do things like logging etc 
+
+        let finalDataToReturn = {}
+        if (response.data.mailerUsed) {
+            finalDataToReturn.mailerUsed = response.data.mailerUsed
+        }
+        return resultObject(response.success, response.message, finalDataToReturn, response.code)
     }
 }
 

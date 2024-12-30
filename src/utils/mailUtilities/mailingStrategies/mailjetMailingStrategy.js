@@ -4,10 +4,10 @@ const Mailjet = require('node-mailjet');
 const { MESSAGE_LISTENER_INTERNAL_RESPONSES } = require("../../../constants/messangingChannel.constant");
 const { resultObject } = require("../../common.utils");
 const { HTTP_CODES } = require("../../../constants/httpCodes.constant");
-const mailjet = Mailjet.apiConnect(
-    config.MAILING_TOOLS.MAILJET.API_KEY_PUBLIC,
-    config.MAILING_TOOLS.MAILJET.API_KEY_PRIVATE,
-);
+const mailjet = new Mailjet({
+    apiKey: config.MAILING_TOOLS.MAILJET.API_KEY,
+    apiSecret: config.MAILING_TOOLS.MAILJET.API_KEY_SECRET,
+})
 
 
 class MailjetMailingStrategy extends MailingStrategy {
@@ -73,11 +73,11 @@ class MailjetMailingStrategy extends MailingStrategy {
                             To: [
                                 {
                                     Email: to?.email,
-                                    ...(to?.name ? { Name: to?.name?.name } : {})
+                                    ...(to?.name ? { Name: to?.name } : {})
                                 }
                             ],
                             Subject: subject,
-                            ...(TextPart ? { TextPart: TextPart } : {})
+                            ...(TextPart ? { TextPart: TextPart } : {}),
 
                             ...(HTMLPart ? { HTMLPart: HTMLPart } : {})
                         }

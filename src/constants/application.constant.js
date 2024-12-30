@@ -16,7 +16,10 @@ module.exports = {
                 SUPPORTED_MESSAGE_TEMPALTE: "EJS_TEMPLATE"
             },
             SEND_MAIL: {
-                SUPPORTED_MESSAGE_TEMPALTE: "EJS_TEMPLATE"
+                SUPPORTED_MESSAGE_TEMPALTE: "EJS_TEMPLATE",
+                MAILER_SUPPORTED: {
+                    MAILJET: "MAILJET"
+                }
             }
         }
     }
