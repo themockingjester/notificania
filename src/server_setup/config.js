@@ -2,11 +2,13 @@ const config = require("../../config.json");
 const { SERVER_SETUP_CONSTANTS } = require("../constants/serverSetup.constant");
 const { exportedDIContainer } = require("../exportedDiContainer");
 const { setupMessageListerners } = require("../message_channel");
+const redisConnector = require('../utils/redis/connection')
 const loadModels = require('../models');
 const BaseCommunicationChannel = require("../utils/communicationStrategies");
 const KafkaCommunicationStrategy = require("../utils/communicationStrategies/kafkaCommunicationStrategy");
-
+const redisHelperFunctions = require("../utils/redis/helperFunctions")
 const { DatabaseFactory } = require("../utils/database/databaseFactory");
+const { getCachingStrategy } = require("../utils/cachingStrategies");
 
 const setupKafka = async () => {
     const kafkaChannel = await new BaseCommunicationChannel().getChannel(KafkaCommunicationStrategy)
@@ -14,6 +16,27 @@ const setupKafka = async () => {
     exportedDIContainer.messageChannels.kafka.producer = kafkaChannel
     exportedDIContainer.messageChannels.kafka.consumer = kafkaChannel
 
+}
+
+async function setupRedis() {
+
+
+    // Setting up redis connection
+    const redisConnection = redisConnector
+    await redisConnection.initialize()
+    const redisClient = redisConnection.redisClient
+    if (redisClient) {
+        exportedDIContainer.caching.redis.client = redisClient
+        await redisHelperFunctions.initClient()
+    }
+}
+
+async function setupCachingStrategy() {
+
+
+    // Setting up caching strategy
+    const cachingStrategy = await getCachingStrategy()
+    exportedDIContainer.caching.strategy = cachingStrategy
 }
 const serverConfiguration = async ({
 
@@ -61,6 +84,20 @@ const serverConfiguration = async ({
                 throw error
             }
 
+            // Setting up Redis cache
+            try {
+                await setupRedis()
+            } catch (error) {
+                throw error
+            }
+
+            // setting up caching strategy
+            try {
+                await setupCachingStrategy()
+            }
+            catch (error) {
+                throw error
+            }
             resolve()
         } catch (error) {
             console.log('SERVER SETUP FAILED error: ' + error)
