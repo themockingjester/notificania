@@ -8,7 +8,8 @@ module.exports = {
             SERVICE_CONFIG: "service_config",
             NOTIFICATION_EVENT: "notification_event",
             NOTIFICATION_EVENT_DYNAMIC_DATA: "notification_event_dynamic_data",
-            NOTIFICATION_EVENT_CONFIG:"notification_event_config"
+            NOTIFICATION_EVENT_CONFIG: "notification_event_config",
+            NOTIFICATION_TRACK: "notification_track"
         }
     },
 
