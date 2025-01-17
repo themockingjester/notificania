@@ -5,14 +5,17 @@ const { fetchData } = require("../utils/dataProxies/genericData.proxy")
 const { processMessage } = require("./message_utility")
 const NotificationTrackService = require("../services/notificationTrack.services")
 const { NOTIFICATION_TRACK_TABLE_CONSTANTS } = require("../constants/notificationTrack.constant")
+const { logger } = require("../di-container")
 
 
 class KafkaMessageListener {
     async initialize() {
         await exportedDIContainer.messageChannels.kafka.consumer.consumer.consumer.run({
             eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
-                let { key: messageKey } = message
+                let { key: messageKey, value } = message
                 messageKey = messageKey.toString()
+                logger.info(`Received message to process ${messageKey}`, { messageValue: value.toString() })
+
                 try {
 
                     // checking message already processed previously
@@ -30,7 +33,7 @@ class KafkaMessageListener {
                         NOTIFICATION_TRACK_TABLE_CONSTANTS.ALLOWED_STATUS.PROCESSED
                     ].includes(processedMessage.data.data.result.status)) {
                         // Message was already processed
-                        console.log(`Message with key ${messageKey} was already processed`)
+                        logger.info(`Message with key ${messageKey} was already processed`)
                     } else {
                         await processMessage({
                             message: message,
@@ -40,6 +43,7 @@ class KafkaMessageListener {
                             }
                         })
 
+                        logger.info(`Successfully processed message with key: ${messageKey}`)
                         await NotificationTrackService.updateNotificationTrackerCore({
                             data: {
                                 status: NOTIFICATION_TRACK_TABLE_CONSTANTS.ALLOWED_STATUS.PROCESSED,
@@ -60,7 +64,10 @@ class KafkaMessageListener {
                     }
 
                 } catch (error) {
-                    //TODO: handle error later
+                    logger.error(`Failed to process message having key: ${messageKey}`, {
+                        reason: error.message,
+                        stack: error.stack
+                    })
                 }
             },
         })
