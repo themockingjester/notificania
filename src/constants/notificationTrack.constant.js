@@ -8,6 +8,7 @@ module.exports = {
             RECEIVED: "RECEIVED",
             IN_PROGRESS: "IN_PROGRESS",
             PROCESSED: "PROCESSED",
+            FAILED: "FAILED",
         }
     }
 }
