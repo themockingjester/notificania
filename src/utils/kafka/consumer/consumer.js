@@ -1,5 +1,6 @@
 
-const config = require("../../../../config.json")
+const config = require("../../../../config.json");
+const { logger } = require("../../../di-container");
 const { kafkaConnection } = require("../connection")
 const AbstractKafkaConsumer = require("./abstractConsumer")
 const { PartitionAssigners } = require('kafkajs');
@@ -20,7 +21,7 @@ class KafkaConsumer extends AbstractKafkaConsumer {
         await consumer.connect()
         await consumer.subscribe({ topics: [config.SERVER.MESSAGING_CHANNELS.APACHE_KAFKA.TOPIC] })
         this.consumer = consumer
-        console.log('Successfully initialized kafka consumer 🚀')
+        logger.info('Successfully initialized kafka consumer 🚀')
     }
 
     /**

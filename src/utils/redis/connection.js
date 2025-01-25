@@ -1,5 +1,6 @@
 var Redis = require('redis');
-const config = require('../../../config.json')
+const config = require('../../../config.json');
+const { logger } = require('../../di-container');
 class RedisConnection {
 
     redisClient
@@ -21,13 +22,13 @@ class RedisConnection {
                 await this.redisClient.connect()
                 // await this.redisClient.select(0)
             }
-
-            console.log("Redis connection established 🚀")
+            logger.info("Redis connection established 🚀")
         } else {
-            console.log(`Redis is not enabled ❌`)
+            logger.error(`Redis is not enabled ❌`)
         }
     }
     disconnect() {
+        //TODO
         // Will implement redis connection disconnection logic
     }
 }
