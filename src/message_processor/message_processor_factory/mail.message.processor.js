@@ -4,7 +4,7 @@ const mailjetMailingStrategy = require("../../utils/mailUtilities/mailingStrateg
 const { DEFAULT_MESSAGE_PROCESSOR_CONSTANTS } = require("../../constants/message_processor/message.processor.constant");
 const { getMailingStrategy } = require("../../utils/mailUtilities/mailingStrategies/getMailingStrategy");
 const { applyEnhancementAndValidatorsForMessageProcessorOnProvidedData } = require("../../utils/messageProcessorUtils");
-const { config } = require("../../di-container");
+const { config, logger } = require("../../di-container");
 const { MESSAGE_LISTENER_INTERNAL_RESPONSES } = require("../../constants/messangingChannel.constant");
 
 const { resultObject } = require("../../utils/common.utils");
@@ -13,7 +13,7 @@ const { resultObject } = require("../../utils/common.utils");
 class MailMessageProcessor {
     processorType = APPLICATION_CONSTANTS.SUPPORTED_MESSAGE_PROCESSOR.MAIL_MESSAGE_PROCESSOR
     async sendMailAux(message) {
-
+        const messageKey = message.key.toString()
         await applyEnhancementAndValidatorsForMessageProcessorOnProvidedData(
             {
                 enhancementType: DEFAULT_MESSAGE_PROCESSOR_CONSTANTS.MESSAGE_ENHANCER_TYPES.DEFAULT,
@@ -26,6 +26,11 @@ class MailMessageProcessor {
             }
         )
 
+        logger.info(`Successfully applied validators and enhancers for the mail message: ${messageKey}`, {
+            enhancedMessage: message
+        })
+
+
         const mailingResponse = await this.sendMail(message)
         return resultObject(mailingResponse.success, mailingResponse.message, mailingResponse.data, mailingResponse.code)
     }
@@ -34,10 +39,12 @@ class MailMessageProcessor {
 
 
     async sendMail(message) {
+        const messageKey = message.key.toString()
         let mailingStrategy
         let objBody = {}
         let mailerUsed = ""
         let { eventConfig, body, templateBody } = message
+        logger.info(`Message reached to main sendMail method : ${messageKey}`)
         if (config.MAILING_TOOLS.MAILJET.ENABLED) {
             mailingStrategy = getMailingStrategy(mailjetMailingStrategy)
             objBody = {
@@ -52,10 +59,14 @@ class MailMessageProcessor {
                     subject: eventConfig?.subject,
                     // TextPart: eventConfig?.templateBody,
                     HTMLPart: templateBody
-                }
+                },
+                message:message
             }
             mailerUsed = APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA.SEND_MAIL.MAILER_SUPPORTED.MAILJET
         } else {
+            logger.error(`Action for message ${messageKey} was to send mail but seemsa like mailing tool is disabled`, {
+                message: message
+            })
             throw new Error(MESSAGE_LISTENER_INTERNAL_RESPONSES.UN_EXPECTED_MAILING_STRATEGY_FOUND)
         }
         const coreResponseObject = await mailingStrategy.sendMail(objBody)

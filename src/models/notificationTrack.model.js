@@ -13,6 +13,9 @@ module.exports = (sequelizeHandler, DataTypes) => {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
+            final_response: {
+                type: DataTypes.STRING,
+            },
             status: {
                 type: DataTypes.STRING,
                 allowNull: false,

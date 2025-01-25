@@ -35,7 +35,7 @@ class KafkaMessageListener {
                         // Message was already processed
                         logger.info(`Message with key ${messageKey} was already processed`)
                     } else {
-                        await processMessage({
+                        let finalResponse = await processMessage({
                             message: message,
                             messageForwadedBy: SUPPORTED_MESSAGE_CHANNELS.APACHE_KAFKA,
                             additionalData: {
@@ -47,11 +47,13 @@ class KafkaMessageListener {
                         await NotificationTrackService.updateNotificationTrackerCore({
                             data: {
                                 status: NOTIFICATION_TRACK_TABLE_CONSTANTS.ALLOWED_STATUS.PROCESSED,
+                                final_response: JSON.stringify(finalResponse)
                             }, whereClause: {
                                 id: messageKey
                             }
 
                         })
+
                         let updatedMessageValue = await NotificationTrackService.findSpecificNotificationTracker(messageKey)
                         await exportedDIContainer.caching.strategy.setKey(
                             {
@@ -68,6 +70,25 @@ class KafkaMessageListener {
                         reason: error.message,
                         stack: error.stack
                     })
+
+                    await NotificationTrackService.updateNotificationTrackerCore({
+                        data: {
+                            status: NOTIFICATION_TRACK_TABLE_CONSTANTS.ALLOWED_STATUS.FAILED,
+                            final_response: error.message
+                        }, whereClause: {
+                            id: messageKey
+                        }
+
+                    })
+                    let updatedMessageValue = await NotificationTrackService.findSpecificNotificationTracker(messageKey)
+                    await exportedDIContainer.caching.strategy.setKey(
+                        {
+                            cacheName: CACHING_CONSTANTS.IN_APP_CACHES.CACHE_NAMES.SUCCESSFULLY_PROCESSED_MESSAGE,
+                            key: messageKey, dataToCache: updatedMessageValue,
+                            expiryInSeconds: CACHING_CONSTANTS.IN_APP_CACHES.DEFAULT_CACHE_EXPIRY.SUCCESSFULLY_PROCESSED_MESSAGE_EXPIRY
+                        }
+
+                    )
                 }
             },
         })

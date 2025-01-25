@@ -1,5 +1,6 @@
 const { APPLICATION_CONSTANTS } = require("../../constants/application.constant")
 const { MESSAGE_LISTENER_INTERNAL_RESPONSES } = require("../../constants/messangingChannel.constant")
+const { logger } = require("../../di-container")
 const firebaseMessageProcessor = require("./firebase.message.processor")
 const mailMessageProcessor = require("./mail.message.processor")
 const getMessageProcessor = (serviceType) => {
@@ -35,7 +36,10 @@ const processFirebaseMessage = (message) => {
 }
 
 const processMailMessage = (message) => {
+
     const { serviceType } = message
+    const messageKey = message.key.toString()
+    logger.info(`Reached the core activity initiating function for the message message: ${messageKey}`)
     if (serviceType == APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES.SEND_MAIL) {
         return message.messageProcessor.sendMailAux(message)
     } else {

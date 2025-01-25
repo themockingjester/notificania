@@ -4,6 +4,7 @@ const Mailjet = require('node-mailjet');
 const { MESSAGE_LISTENER_INTERNAL_RESPONSES } = require("../../../constants/messangingChannel.constant");
 const { resultObject } = require("../../common.utils");
 const { HTTP_CODES } = require("../../../constants/httpCodes.constant");
+const { logger } = require("../../../di-container");
 const mailjet = new Mailjet({
     apiKey: config.MAILING_TOOLS.MAILJET.API_KEY,
     apiSecret: config.MAILING_TOOLS.MAILJET.API_KEY_SECRET,
@@ -49,10 +50,16 @@ class MailjetMailingStrategy extends MailingStrategy {
         }
     }
     async sendMail({
-        mailjetData
+        mailjetData,
+        message
     }) {
         return new Promise((resolve, reject) => {
+            const messageKey = message.key.toString()
+
             this.validateProvidedBodyForSendingMail(mailjetData)
+            logger.info(`Validated Provided body for sending mail for message: ${messageKey}`, {
+                mailjetData: mailjetData
+            })
             let {
                 from,
                 to,
@@ -60,7 +67,6 @@ class MailjetMailingStrategy extends MailingStrategy {
                 TextPart,
                 HTMLPart,
             } = mailjetData
-
             const request = mailjet
                 .post('send', { version: 'v3.1' })
                 .request({
@@ -86,11 +92,17 @@ class MailjetMailingStrategy extends MailingStrategy {
 
             request
                 .then((result) => {
+                    logger.info(`Received response for mailjet for message: ${messageKey}`, {
+                        mailjetResponse: result.body
+                    })
                     return resolve(resultObject(true, `Successfully sent mail`, {
                         responseBody: result.body,
                     }, HTTP_CODES.OK))
                 })
                 .catch((err) => {
+                    logger.error(`Error: Received response for mailjet for message: ${messageKey}`, {
+                        error: err
+                    })
                     return resolve(resultObject(false, `Failed to sent mail`, {
                         error: err,
                     }, HTTP_CODES.INTERNAL_SERVER_ERROR))
