@@ -1,13 +1,13 @@
 #### Overview
 Notificania is a tool which allows you to communicate with your clients or customers by sending almost any kind of message like normal email, firebase push notification, etc.
 
-###### Note: The tool is in currently development stage.
+###### Note: The tool is in currently early stage of development where you can find some issues we are working to fix those timely.
 
 #### Supported messages:
-1. Emails
-2. Firebase Push Notifications (In Development)
-3. Apple Push Notification (In Next Release)
-4. SMS (In Next Release)
+1. Emails 📧
+2. Firebase Push Notifications 🔔  (In Development)
+3. Apple Push Notification 🔔 (In Next Release)
+4. SMS 💬 (In Next Release)
 
 we will add support for further message categories in future releases.
 
