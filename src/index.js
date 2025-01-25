@@ -3,7 +3,8 @@ const config = require('../config.json')
 const createRoutes = require('./routes'); // Import the route function
 
 const app = express();
-const { serverConfiguration } = require("./server_setup/config")
+const { serverConfiguration } = require("./server_setup/config");
+const { logger } = require("./di-container");
 
 const PORT = config.SERVER.PORT || 4094
 app.use(express.json()); // for parsing application/json
@@ -15,7 +16,7 @@ async function startServer() {
     app.use("/apis", createRoutes());
 
     app.listen(PORT, () => {
-        console.log(`Server is running on ${PORT}`);
+        logger.info(`Server is running on ${PORT} 🚀`)
     });
 
 }

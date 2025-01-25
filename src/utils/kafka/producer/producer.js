@@ -3,6 +3,7 @@ const { resultObject } = require("../../common.utils")
 const config = require("../../../../config.json")
 const { kafkaConnection } = require("../connection")
 const AbstractKafkaProducer = require("./abstractProducer")
+const { logger } = require("../../../di-container")
 
 // creating producer from Kafka connection
 const producer = kafkaConnection.producer()
@@ -15,7 +16,7 @@ class KafkaProducer extends AbstractKafkaProducer {
      */
     async initialize() {
         await producer.connect()
-        console.log('Successfully initialized kafka producer 🚀')
+        logger.info('Successfully initialized kafka producer 🚀')
     }
 
     /**

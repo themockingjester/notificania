@@ -19,8 +19,6 @@ class FirebaseMessageProcessor {
                 templateType: APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA.FIREBASE_PUSH_NOTIFICATION.SUPPORTED_MESSAGE_TEMPALTE
             }
         )
-
-        console.log(message, 3566) // TODO: continue from here
     }
 }
 
