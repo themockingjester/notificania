@@ -12,9 +12,9 @@ Notificania is a tool which allows you to communicate with your clients or custo
 we will add support for further message categories in future releases.
 
 #### Tool Requirements:
-1. Any Relational Database (Tested for MySQL).
-2. Redis cache.
-3. Message Broker (Tested for Apache Kafka).
+1. Any Relational Database (Tested for MySQL v8.0.31).
+2. Redis cache (Tested for v7.4.1).
+3. Message Broker (Tested for Apache Kafka v3.4.0).
 4. Nodejs Environment installed on machine (Tool tested for v16.18.0).
 
 #### Tool Supportable stack:
