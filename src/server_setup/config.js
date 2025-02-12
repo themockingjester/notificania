@@ -8,12 +8,16 @@ const loadModels = require("../models");
 const BaseCommunicationChannel = require("../utils/communicationStrategies");
 const KafkaCommunicationStrategy = require("../utils/communicationStrategies/kafkaCommunicationStrategy");
 const redisHelperFunctions = require("../utils/redis/helperFunctions");
+const cassandraHelperFunctions = require("../utils/apacheCassandra/apacheCassandraHelperFunctions");
 const { DatabaseFactory } = require("../utils/database/databaseFactory");
 const { getCachingStrategy } = require("../utils/cachingStrategies");
 const { logger } = require("../di-container");
 const {
   APACHE_CASSANDRA_INITIAL_SETUP_QUERIES,
 } = require("../utils/apacheCassandra/initialQueries");
+const {
+  getDataWareHousingStrategy,
+} = require("../utils/dataWareHouseStrategy");
 
 const setupKafka = async () => {
   const kafkaChannel = await new BaseCommunicationChannel().getChannel(
@@ -43,6 +47,7 @@ async function setupApacheCassandra() {
   const cassandraClient = cassandraConnection.apacheCassandraClient;
   if (cassandraClient) {
     exportedDIContainer.dataWareHouse.apacheCassandra.client = cassandraClient;
+    await cassandraHelperFunctions.initClient();
     logger.info(`Setup of Apache Cassandra done! 🚀`);
     exportedDIContainer.dataWareHouse.apacheCassandra.client
       .execute(
@@ -62,6 +67,13 @@ async function setupCachingStrategy() {
   const cachingStrategy = await getCachingStrategy();
   exportedDIContainer.caching.strategy = cachingStrategy;
   logger.info(`Caching Strategy setup correctly! 🚀`);
+}
+
+async function setupDataWareHousingStrategy() {
+  // Setting up caching strategy
+  const dataWareHousingStrategy = await getDataWareHousingStrategy();
+  exportedDIContainer.dataWareHouse.strategy = dataWareHousingStrategy;
+  logger.info(`Data Warehousing Strategy setup correctly! 🚀`);
 }
 const serverConfiguration = async ({}) => {
   return new Promise(async (resolve, reject) => {
@@ -121,6 +133,14 @@ const serverConfiguration = async ({}) => {
       } catch (error) {
         throw error;
       }
+
+      // setting up data ware housing strategy
+      try {
+        await setupDataWareHousingStrategy();
+      } catch (error) {
+        throw error;
+      }
+
       resolve();
     } catch (error) {
       logger.error(

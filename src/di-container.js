@@ -22,6 +22,7 @@ const DI_CONTAINER = {
     apacheCassandra: {
       client: null,
     },
+    strategy: null,
   },
 };
 module.exports = DI_CONTAINER;
