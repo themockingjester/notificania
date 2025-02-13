@@ -7,6 +7,10 @@ const {
 const { resultObject } = require("../../common.utils");
 const { HTTP_CODES } = require("../../../constants/httpCodes.constant");
 const { logger } = require("../../../di-container");
+const dataWareHouseHelperFunctions = require("../../dataWareHouseUtils/dataWareHouseHelperFunctions");
+const {
+  APACHE_CASSANDRA_CONSTANTS,
+} = require("../../../constants/apacheCassandra.constant");
 const mailjet = new Mailjet({
   apiKey: config.MAILING_TOOLS.MAILJET.API_KEY,
   apiSecret: config.MAILING_TOOLS.MAILJET.API_KEY_SECRET,
@@ -57,9 +61,21 @@ class MailjetMailingStrategy extends MailingStrategy {
     }
   }
   async sendMail({ mailjetData, message }) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const messageKey = message.key.toString();
 
+      await dataWareHouseHelperFunctions.insertToWareHouseNotificationDetailedLogs(
+        {
+          message_id: messageKey,
+          input_data: JSON.stringify({ mailjetData, message }),
+          output_data: JSON.stringify({
+            response: `Message reached to mailjet send mail method`,
+          }),
+          process_status:
+            APACHE_CASSANDRA_CONSTANTS.TABLE_CONSTANTS
+              .NOTIFICATION_DETAILED_LOGS.PROCESS_STATUS.IN_PROGRESS,
+        }
+      );
       this.validateProvidedBodyForSendingMail(mailjetData);
       logger.info(
         `Validated Provided body for sending mail for message: ${messageKey}`,
@@ -68,6 +84,18 @@ class MailjetMailingStrategy extends MailingStrategy {
         }
       );
       let { from, to, subject, TextPart, HTMLPart } = mailjetData;
+      await dataWareHouseHelperFunctions.insertToWareHouseNotificationDetailedLogs(
+        {
+          message_id: messageKey,
+          input_data: JSON.stringify({ mailjetData, message }),
+          output_data: JSON.stringify({
+            response: `Mailjet send mail initiated`,
+          }),
+          process_status:
+            APACHE_CASSANDRA_CONSTANTS.TABLE_CONSTANTS
+              .NOTIFICATION_DETAILED_LOGS.PROCESS_STATUS.IN_PROGRESS,
+        }
+      );
       const request = mailjet.post("send", { version: "v3.1" }).request({
         Messages: [
           {
@@ -90,7 +118,21 @@ class MailjetMailingStrategy extends MailingStrategy {
       });
 
       request
-        .then((result) => {
+        .then(async (result) => {
+          await dataWareHouseHelperFunctions.insertToWareHouseNotificationDetailedLogs(
+            {
+              message_id: messageKey,
+              input_data: JSON.stringify({}),
+              output_data: JSON.stringify({
+                response: `Mailjet send mail completed`,
+                apiResponseBody: result.body,
+              }),
+              process_status:
+                APACHE_CASSANDRA_CONSTANTS.TABLE_CONSTANTS
+                  .NOTIFICATION_DETAILED_LOGS.PROCESS_STATUS
+                  .SUCCESSFULLY_PROCESSED,
+            }
+          );
           logger.info(
             `Received response for mailjet for message: ${messageKey}`,
             {
@@ -108,7 +150,20 @@ class MailjetMailingStrategy extends MailingStrategy {
             )
           );
         })
-        .catch((err) => {
+        .catch(async (err) => {
+          await dataWareHouseHelperFunctions.insertToWareHouseNotificationDetailedLogs(
+            {
+              message_id: messageKey,
+              input_data: JSON.stringify({}),
+              output_data: JSON.stringify({
+                response: `Mailjet send mail failed`,
+                error: err,
+              }),
+              process_status:
+                APACHE_CASSANDRA_CONSTANTS.TABLE_CONSTANTS
+                  .NOTIFICATION_DETAILED_LOGS.PROCESS_STATUS.FAILED,
+            }
+          );
           logger.error(
             `Error: Received response for mailjet for message: ${messageKey}`,
             {
