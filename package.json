@@ -19,6 +19,7 @@
     "node-mailjet": "^6.0.6",
     "redis": "^4.7.0",
     "sequelize": "^6.37.5",
+    "twilio": "^5.4.4",
     "winston": "^3.17.0",
     "zlib": "^1.0.5"
   }
