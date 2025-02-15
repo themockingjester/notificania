@@ -7,7 +7,7 @@ Notificania is a tool which allows you to communicate with your clients or custo
 1. Emails 📧
 2. Firebase Push Notifications 🔔  (In Development)
 3. Apple Push Notification 🔔 (In Next Release)
-4. SMS 💬 (In Next Release)
+4. SMS 💬 
 
 we will add support for further message categories in future releases.
 
