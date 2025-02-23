@@ -31,9 +31,16 @@ class ApacheCassandraConnection {
       logger.error(`Apache Cassandra is not enabled ❌`);
     }
   }
-  disconnect() {
-    //TODO
-    // Will implement connection disconnection logic
+  async disconnect() {
+    if (this.apacheCassandraClient) {
+      try {
+        await this.apacheCassandraClient.shutdown();
+        logger.info("Successfully disconnected from Apache Cassandra.");
+      } catch (error) {
+        logger.error("Error while disconnecting from Apache Cassandra:", error);
+        throw error;
+      }
+    }
   }
 }
 
