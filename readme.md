@@ -42,6 +42,12 @@ we will add support for further message categories in future releases.
 | Apache Kafka | Tested ✅ |
 | AWS SQS | In future release 🎁 |
 
+###### Dataware Housing Tools Supported
+
+| ToolName | Status |
+| --------- | ------ |
+| Apache Cassandra | Tested ✅ |
+
 #### How to use the tool:
 1. Clone the repository on your system.
 2. Go to the project in system
