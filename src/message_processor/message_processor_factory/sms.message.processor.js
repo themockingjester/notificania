@@ -1,16 +1,11 @@
 const {
   APPLICATION_CONSTANTS,
 } = require("../../constants/application.constant");
-const {
-  MAIL_MESSAGE_PROCESSOR_CONSTANTS,
-} = require("../../constants/message_processor/mail.message.processor.constant");
-const mailjetMailingStrategy = require("../../utils/mailUtilities/mailingStrategies/mailjetMailingStrategy");
+const twilioSmsStrategy = require("../../utils/smsUtilities/smsStrategies/twilioSmsStrategy");
 const {
   DEFAULT_MESSAGE_PROCESSOR_CONSTANTS,
 } = require("../../constants/message_processor/message.processor.constant");
-const {
-  getMailingStrategy,
-} = require("../../utils/mailUtilities/mailingStrategies/getMailingStrategy");
+
 const {
   applyEnhancementAndValidatorsForMessageProcessorOnProvidedData,
 } = require("../../utils/messageProcessorUtils");
@@ -24,11 +19,17 @@ const dataWareHouseHelperFunctions = require("../../utils/dataWareHouseUtils/dat
 const {
   APACHE_CASSANDRA_CONSTANTS,
 } = require("../../constants/apacheCassandra.constant");
+const {
+  getSMSStrategy,
+} = require("../../utils/smsUtilities/smsStrategies/getSmsStrategy");
+const {
+  SMS_MESSAGE_PROCESSOR_CONSTANTS,
+} = require("../../constants/message_processor/sms.message.processor");
 
-class MailMessageProcessor {
+class SMSMessageProcessor {
   processorType =
-    APPLICATION_CONSTANTS.SUPPORTED_MESSAGE_PROCESSOR.MAIL_MESSAGE_PROCESSOR;
-  async sendMailAux(message) {
+    APPLICATION_CONSTANTS.SUPPORTED_MESSAGE_PROCESSOR.SMS_MESSAGE_PROCESSOR;
+  async sendSMSAux(message) {
     const messageKey = message.key.toString();
     await dataWareHouseHelperFunctions.insertToWareHouseNotificationDetailedLogs(
       {
@@ -37,7 +38,7 @@ class MailMessageProcessor {
           message: message,
         }),
         output_data: JSON.stringify({
-          response: `Reached send mail aux method`,
+          response: `Reached send sms aux method`,
         }),
         process_status:
           APACHE_CASSANDRA_CONSTANTS.TABLE_CONSTANTS.NOTIFICATION_DETAILED_LOGS
@@ -53,14 +54,14 @@ class MailMessageProcessor {
       applyEnhancement: true,
       message,
       configBasedNeedKeysForValidator:
-        MAIL_MESSAGE_PROCESSOR_CONSTANTS.SEND_MAIL.NEEDED_KEYS_FOR_CONFIG,
+        SMS_MESSAGE_PROCESSOR_CONSTANTS.SEND_SMS.NEEDED_KEYS_FOR_CONFIG,
       templateType:
-        APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA.SEND_MAIL
+        APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA.SEND_SMS
           .SUPPORTED_MESSAGE_TEMPALTE,
     });
 
     logger.info(
-      `Successfully applied validators and enhancers for the mail message: ${messageKey}`,
+      `Successfully applied validators and enhancers for the sms message: ${messageKey}`,
       {
         enhancedMessage: message,
       }
@@ -80,7 +81,7 @@ class MailMessageProcessor {
             .PROCESS_STATUS.IN_PROGRESS,
       }
     );
-    const mailingResponse = await this.sendMail(message);
+    const mailingResponse = await this.sendSMS(message);
     return resultObject(
       mailingResponse.success,
       mailingResponse.message,
@@ -89,13 +90,13 @@ class MailMessageProcessor {
     );
   }
 
-  async sendMail(message) {
+  async sendSMS(message) {
     const messageKey = message.key.toString();
-    let mailingStrategy;
+    let smsStrategy;
     let objBody = {};
-    let mailerUsed = "";
+    let senderUsed = "";
     let { eventConfig, body, templateBody } = message;
-    logger.info(`Message reached to main sendMail method : ${messageKey}`);
+    logger.info(`Message reached to main sendSMS method : ${messageKey}`);
     await dataWareHouseHelperFunctions.insertToWareHouseNotificationDetailedLogs(
       {
         message_id: messageKey,
@@ -103,52 +104,42 @@ class MailMessageProcessor {
           message: message,
         }),
         output_data: JSON.stringify({
-          response: `Message reached to main sendMail method`,
+          response: `Message reached to main sendSMS method`,
         }),
         process_status:
           APACHE_CASSANDRA_CONSTANTS.TABLE_CONSTANTS.NOTIFICATION_DETAILED_LOGS
             .PROCESS_STATUS.IN_PROGRESS,
       }
     );
-    if (config.MAILING_TOOLS.MAILJET.ENABLED) {
-      mailingStrategy = getMailingStrategy(mailjetMailingStrategy);
+    if (config.SMS_TOOLS["TWILIO"].ENABLED) {
+      smsStrategy = getSMSStrategy(twilioSmsStrategy);
       objBody = {
-        mailjetData: {
-          from: {
-            email: eventConfig?.senderDefaultMail,
-            ...(eventConfig?.senderDefaultMailingName
-              ? { name: eventConfig?.senderDefaultMailingName }
-              : {}),
-          },
-          to: {
-            email: body?.receipientEmail,
-          },
-          subject: eventConfig?.subject,
-          // TextPart: eventConfig?.templateBody,
-          HTMLPart: templateBody,
+        twilioData: {
+          fromPhone: eventConfig?.fromPhone,
+          toPhone: body.receipientPhone,
+          body: templateBody,
         },
         message: message,
       };
-      mailerUsed =
-        APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA.SEND_MAIL
-          .MAILER_SUPPORTED.MAILJET;
+      senderUsed =
+        APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES_ADDITIONAL_DATA.SEND_SMS
+          .SENDER_SUPPORTED.TWILIO;
     } else {
       logger.error(
-        `Action for message ${messageKey} was to send mail but seemsa like mailing tool is disabled`,
+        `Action for message ${messageKey} was to send sms but seems like sms tool is disabled`,
         {
           message: message,
         }
       );
       throw new Error(
-        MESSAGE_LISTENER_INTERNAL_RESPONSES.UN_EXPECTED_MAILING_STRATEGY_FOUND
+        MESSAGE_LISTENER_INTERNAL_RESPONSES.UN_EXPECTED_SMS_STRATEGY_FOUND
       );
     }
-    const coreResponseObject = await mailingStrategy.sendMail(objBody);
-    coreResponseObject.data.mailerUsed = mailerUsed;
-    const refinedResponseObject = await this.sendMailAuxResponseAdapter(
+    const coreResponseObject = await smsStrategy.sendSMS(objBody);
+    coreResponseObject.data.senderUsed = senderUsed;
+    const refinedResponseObject = await this.sendSMSAuxResponseAdapter(
       coreResponseObject
     );
-
     return resultObject(
       refinedResponseObject.success,
       refinedResponseObject.message,
@@ -162,12 +153,12 @@ class MailMessageProcessor {
    * @param {JSON Object} response
    * @returns JSON
    */
-  async sendMailAuxResponseAdapter(response) {
+  async sendSMSAuxResponseAdapter(response) {
     // Here we can do things like logging etc
 
     let finalDataToReturn = {};
-    if (response.data.mailerUsed) {
-      finalDataToReturn.mailerUsed = response.data.mailerUsed;
+    if (response.data.senderUsed) {
+      finalDataToReturn.senderUsed = response.data.senderUsed;
     }
     return resultObject(
       response.success,
@@ -178,4 +169,4 @@ class MailMessageProcessor {
   }
 }
 
-module.exports = new MailMessageProcessor();
+module.exports = new SMSMessageProcessor();
