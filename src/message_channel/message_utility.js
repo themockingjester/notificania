@@ -50,7 +50,6 @@ const processMessage = async (message) => {
     enhancedMessage: enhancedMessage,
   });
   enhancedMessage.messageProcessor = messageProcessor;
-
   await processMessageByProcessor(enhancedMessage);
 };
 

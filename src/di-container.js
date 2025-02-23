@@ -4,6 +4,7 @@ const { logger } = require("./utils/logger");
 const DI_CONTAINER = {
   config: config,
   databaseHandler: null,
+  databaseHandlerObject: null,
   dbModels: null,
   logger: logger,
   messageChannels: {
@@ -15,12 +16,14 @@ const DI_CONTAINER = {
   caching: {
     redis: {
       client: null,
+      connector: null,
     },
     strategy: null,
   },
   dataWareHouse: {
     apacheCassandra: {
       client: null,
+      connector: null,
     },
     strategy: null,
   },

@@ -35,6 +35,7 @@ async function setupRedis() {
   await redisConnection.initialize();
   const redisClient = redisConnection.redisClient;
   if (redisClient) {
+    exportedDIContainer.caching.redis.connector = redisConnection;
     exportedDIContainer.caching.redis.client = redisClient;
     await redisHelperFunctions.initClient();
     logger.info(`Setup of Redis done! 🚀`);
@@ -46,6 +47,8 @@ async function setupApacheCassandra() {
   await cassandraConnection.initialize();
   const cassandraClient = cassandraConnection.apacheCassandraClient;
   if (cassandraClient) {
+    exportedDIContainer.dataWareHouse.apacheCassandra.connector =
+      cassandraConnection;
     exportedDIContainer.dataWareHouse.apacheCassandra.client = cassandraClient;
     await cassandraHelperFunctions.initClient();
     logger.info(`Setup of Apache Cassandra done! 🚀`);
@@ -88,6 +91,7 @@ const serverConfiguration = async ({}) => {
 
       const myDatabase = await DatabaseFactory(selectedDatabase);
       await myDatabase.connect();
+      exportedDIContainer.databaseHandlerObject = myDatabase;
       exportedDIContainer.databaseHandler = await myDatabase.getConnection();
       logger.info(`Setup of database done! 🚀`);
 
@@ -98,48 +102,24 @@ const serverConfiguration = async ({}) => {
 
       await exportedDIContainer.databaseHandler.sync({});
       if (config.SERVER.MESSAGING_CHANNELS.APACHE_KAFKA.ENABLED) {
-        try {
-          await setupKafka();
-        } catch (error) {
-          throw error;
-        }
+        await setupKafka();
       }
 
       // Setting up messaging channels listeners
-      try {
-        await setupMessageListerners();
-        logger.info(`Message channel listeners setup correctly 🚀!`);
-      } catch (error) {
-        throw error;
-      }
+      await setupMessageListerners();
+      logger.info(`Message channel listeners setup correctly 🚀!`);
 
       // Setting up Redis cache
-      try {
-        await setupRedis();
-      } catch (error) {
-        throw error;
-      }
+      await setupRedis();
 
       // setting up caching strategy
-      try {
-        await setupCachingStrategy();
-      } catch (error) {
-        throw error;
-      }
+      await setupCachingStrategy();
 
       // Setting up Apache Cassandra
-      try {
-        await setupApacheCassandra();
-      } catch (error) {
-        throw error;
-      }
+      await setupApacheCassandra();
 
       // setting up data ware housing strategy
-      try {
-        await setupDataWareHousingStrategy();
-      } catch (error) {
-        throw error;
-      }
+      await setupDataWareHousingStrategy();
 
       resolve();
     } catch (error) {
