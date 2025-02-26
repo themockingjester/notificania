@@ -38,6 +38,11 @@ class ServiceTypeService {
 
     return this.serviceTypeRepository.create({ data, options });
   };
+  createServiceTypeCoreBulkCreate = async ({ data, options }) => {
+    await this.checkForDefaultModel();
+
+    return this.serviceTypeRepository.bulkCreate({ dataArray: data, options });
+  };
   deactivateServiceTypeCore = async ({ whereClause, options }) => {
     await this.checkForDefaultModel();
 

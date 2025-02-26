@@ -1,0 +1,9 @@
+id,event_id,key,value,deactivated_by,deactivated_at,created_by,updated_by,record_status,createdAt,updatedAt
+181db189-7d80-4b36-8cb8-673b5230fa40,cea548f8-97c3-422f-a70c-caa1566a0bae,subject,Final call,NULL,NULL,NULL,NULL,1,2024-12-30 20:30:25,2024-12-30 20:30:25
+19befa2f-056f-43aa-af48-0f7a28266681,cea548f8-97c3-422f-a70c-caa1566a0bae,senderDefaultMail,xxxxxxxxxxxxxxxxx@xxxxx.xx,NULL,NULL,NULL,NULL,1,2024-12-30 18:28:01,2024-12-30 18:28:01
+41a8456b-e642-4cf5-8bb5-a9d52f1d08aa,e7adbc07-5195-4cde-adbf-a62c587e35db,template,Hello <%= name %> sir. Your test sms has been received successfully.,NULL,NULL,NULL,NULL,1,2025-02-15 17:27:54,2025-02-15 17:27:54
+5ef4d251-ee31-4fdb-a2eb-769cb4965c93,b933da54-cb75-4e9a-a99e-4bf016115b8e,DL_LINK,https://google.com,NULL,NULL,NULL,NULL,1,2024-12-21 19:54:16,2024-12-21 19:54:16
+71db9873-19fc-4c72-938b-c7120dfc8665,cea548f8-97c3-422f-a70c-caa1566a0bae,template,<h1>Hello there <%= name %></h1>,NULL,NULL,NULL,NULL,1,2024-12-29 03:02:54,2024-12-29 03:02:54
+a592b6d9-23eb-4363-9c54-6421b582e443,e7adbc07-5195-4cde-adbf-a62c587e35db,fromPhone,18313187156,NULL,NULL,NULL,NULL,1,2025-02-15 18:15:40,2025-02-15 18:15:40
+c8ee4b83-6bf3-4251-b8e2-c6317f84f86c,cea548f8-97c3-422f-a70c-caa1566a0bae,senderDefaultMailingName,no reply new,NULL,NULL,NULL,NULL,1,2024-12-30 18:33:18,2024-12-30 18:33:18
+e7db31d5-a4c3-4165-8eef-f6d17ce4c312,b933da54-cb75-4e9a-a99e-4bf016115b8e,template,<h1>Hello <%= name %></h1>,NULL,NULL,NULL,NULL,1,2024-12-21 20:00:27,2024-12-21 20:00:27
