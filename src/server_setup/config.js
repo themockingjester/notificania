@@ -18,6 +18,7 @@ const {
 const {
   getDataWareHousingStrategy,
 } = require("../utils/dataWareHouseStrategy");
+const AutoFillTestDBData = require("./autoFillTestDBData");
 
 const setupKafka = async () => {
   const kafkaChannel = await new BaseCommunicationChannel().getChannel(
@@ -78,6 +79,16 @@ async function setupDataWareHousingStrategy() {
   exportedDIContainer.dataWareHouse.strategy = dataWareHousingStrategy;
   logger.info(`Data Warehousing Strategy setup correctly! 🚀`);
 }
+
+async function autoFillTestDataInDB() {
+  if (exportedDIContainer.config.SERVER.AUTO_FILL_TEST_DATA.ENABLED) {
+    let testDataAutoFill = new AutoFillTestDBData();
+    await testDataAutoFill.populateServiceTypeData();
+    await testDataAutoFill.populateNotificationEventData();
+    await testDataAutoFill.populateNotificationEventConfigData();
+    logger.info(`Auto fill test data in DB done!`);
+  }
+}
 const serverConfiguration = async ({}) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -120,6 +131,9 @@ const serverConfiguration = async ({}) => {
 
       // setting up data ware housing strategy
       await setupDataWareHousingStrategy();
+
+      // auto filling test data
+      await autoFillTestDataInDB();
 
       resolve();
     } catch (error) {
