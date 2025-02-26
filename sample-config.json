@@ -1,71 +1,93 @@
 {
-    "SERVER": {
-        "ENV": "local",
-        "SUPPORTED_ENVS": [
-            "local",
-            "prod",
-            "dev"
+  "SERVER": {
+    "ENV": "local",
+    "SUPPORTED_ENVS": ["local", "prod", "dev"],
+    "PORT": 4078,
+    "AUTO_FILL_TEST_DATA": {
+      "ENABLED": true
+    },
+    "MESSAGING_CHANNELS": {
+      "APACHE_KAFKA": {
+        "ENABLED": true,
+        "ENABLE_DEBUGGING": false,
+        "CONSUMER_GROUP": "crocolytics-consumer-group",
+        "TOPIC": "crocolytics-producer",
+        "BROKERS": ["localhost:9092"],
+        "CLIENT_ID": "my-app"
+      },
+      "AWS_SQS": {
+        "ENABLED": false
+      }
+    },
+    "CACHING": {
+      "SUPPORTED_CACHING": {
+        "REDIS": "REDIS"
+      },
+      "REDIS": {
+        "ENABLED": true,
+        "MODE": "CLIENT",
+        "ALLOWED_MODES": ["CLUSTER", "CLIENT"],
+        "CLUSTER_SERVERS": [
+          {
+            "url": "redis://127.0.0.1:6379"
+          }
         ],
-        "PORT": 4078,
-        "MESSAGING_CHANNELS": {
-            "APACHE_KAFKA": {
-                "ENABLED": true,
-                "ENABLE_DEBUGGING": false,
-                "CONSUMER_GROUP": "######################",
-                "TOPIC": "##################",
-                "BROKERS": [
-                    "localhost:9092"
-                ],
-                "CLIENT_ID": "##############"
-            },
-            "AWS_SQS": {
-                "ENABLED": false
-            }
-        },
-        "CACHING": {
-            "SUPPORTED_CACHING": {
-                "REDIS": "REDIS"
-            },
-            "REDIS": {
-                "ENABLED": true,
-                "MODE": "CLIENT",
-                "ALLOWED_MODES": [
-                    "CLUSTER",
-                    "CLIENT"
-                ],
-                "CLUSTER_SERVERS": [
-                    {
-                        "url": "redis://127.0.0.1:6379"
-                    }
-                ],
-                "STANDALONE_SERVER": [
-                    {
-                        "host": "127.0.0.1",
-                        "port": "6379"
-                    }
-                ]
-            }
-        }
-    },
-    "DATABASE": {
-        "DEFAULT": "MYSQL",
-        "MYSQL": {
-            "ENABLED": true,
-            "HOST": "##################",
-            "USER_NAME": "##################",
-            "PASSWORD": "#########################",
-            "DATABASE_NAME": "notificania"
-        }
-    },
-    "MAILING_TOOLS": {
-        "MAILJET": {
-            "ENABLED": true,
-            "API_KEY": "#######################################",
-            "API_KEY_SECRET": "####################################"
-        }
-    },
-    "APP_DETAILS": {
-        "NAME": "NOTIFICANIA",
-        "LOG_FILE": "notificania.log"
+        "STANDALONE_SERVER": [
+          {
+            "host": "127.0.0.1",
+            "port": "6379"
+          }
+        ]
+      }
     }
+  },
+  "DATABASE": {
+    "DEFAULT": "MYSQL",
+    "MYSQL": {
+      "ENABLED": true,
+      "HOST": "xxxxxxxxxxxxxxxxxxx",
+      "USER_NAME": "xxxxxxxxxxxxxxxxxxxxx",
+      "PASSWORD": "xxxxxxxxxxxxxxxxxxxxxx",
+      "DATABASE_NAME": "notificania"
+    }
+  },
+  "DATA_WAREHOUSE": {
+    "ENABLED": true,
+    "SUPPORTED_DATA_WAREHOUSES": {
+      "APACHE_CASSANDRA": "APACHE_CASSANDRA"
+    },
+    "APACHE_CASSANDRA": {
+      "ENABLED": true,
+      "CONTACT_POINTS": ["127.0.0.1"],
+      "KEYSPACE": "notificania",
+      "LOCAL_DATA_CENTER": "datacenter1",
+      "USER_NAME": "cassandra",
+      "PASSWORD": "cassandra"
+    }
+  },
+  "MAILING_TOOLS": {
+    "MAILJET": {
+      "ENABLED": true,
+      "API_KEY": "xxxxxxxxxxxxxxxxxxxxxx",
+      "API_KEY_SECRET": "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  },
+  "SMS_TOOLS": {
+    "TWILIO": {
+      "ENABLED": true,
+      "ACCOUNT_SID": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "AUTH_TOKEN": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  },
+  "APP_DETAILS": {
+    "NAME": "NOTIFICANIA",
+    "LOG_FILE": "notificania.log"
+  },
+  "TEST_DATA": {
+    "DATABASE_TABLES_TEST_FILES": {
+      "SERVICE_TYPE": "src/resources/test_data/service_type.csv",
+      "NOTIFICATION_EVENT": "src/resources/test_data/notificaton_event.csv",
+      "NOTIFICANIA_EVENT_CONFIG": "src/resources/test_data/notificaton_event_config.csv"
+    }
+  }
 }
