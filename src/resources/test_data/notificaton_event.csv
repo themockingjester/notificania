@@ -1,0 +1,4 @@
+id,service_id,event_name,deactivated_by,deactivated_at,created_by,updated_by,record_status,createdAt,updatedAt
+b933da54-cb75-4e9a-a99e-4bf016115b8e,98a28ee1-25e5-40a9-9746-bcabb31b4065,Firebase Push Notification Event 1,NULL,NULL,NULL,NULL,1,2024-12-21 19:52:48,2024-12-21 19:52:48
+cea548f8-97c3-422f-a70c-caa1566a0bae,90219ce8-d490-4000-99b3-b221cc129044,test_mail,NULL,NULL,NULL,NULL,1,2024-12-29 02:56:06,2024-12-29 02:56:06
+e7adbc07-5195-4cde-adbf-a62c587e35db,3fb093fe-7f34-4feb-914f-ed5f6130d309,test_sms,NULL,NULL,NULL,NULL,1,2025-02-15 16:52:03,2025-02-15 16:52:03
