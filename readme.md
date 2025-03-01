@@ -57,3 +57,7 @@ we will add support for further message categories in future releases.
 6. Whatever database you use you must have a schema (or database) name `notificania` before using the application.
 7. Message Broker like Apache Kafka, Caches like Redis should be running before using the application.
 8. After complete setup run below command to start the server. `npm start`
+
+
+#### Performance
+
