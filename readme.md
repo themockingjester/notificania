@@ -61,3 +61,7 @@ we will add support for further message categories in future releases.
 
 #### Performance
 
+Jmeter Load testing of Send Mail feature for
+12000 requests at 506.2 req/sec
+![Load testing for send mail]([https://raw.githubusercontent.com/your-username/your-repo/main/path-to-image.png](https://github.com/themockingjester/notificania/blob/master/src/resources/otherAssets/send_mail_load_test.png))
+
