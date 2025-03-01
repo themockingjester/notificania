@@ -5,9 +5,10 @@ Notificania is a tool which allows you to communicate with your clients or custo
 
 #### Supported messages:
 1. Emails 📧
-2. Firebase Push Notifications 🔔  (In Development)
+2. Firebase Push Notifications 🔔  (In Next Release)
 3. Apple Push Notification 🔔 (In Next Release)
-4. SMS 💬 
+4. SMS 💬
+5. Whatsapp Message 💬 (In Development)
 
 we will add support for further message categories in future releases.
 
@@ -63,5 +64,5 @@ we will add support for further message categories in future releases.
 
 Jmeter Load testing of Send Mail feature for
 12000 requests at 506.2 req/sec
-![Load testing for send mail]([https://raw.githubusercontent.com/your-username/your-repo/main/path-to-image.png](https://github.com/themockingjester/notificania/blob/master/src/resources/otherAssets/send_mail_load_test.png))
 
+<img src="https://github.com/themockingjester/notificania/blob/master/src/resources/otherAssets/send_mail_load_test.png" width="600">
