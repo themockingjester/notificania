@@ -1,29 +1,26 @@
 const router = require("express").Router();
-const system = require("./system")
-const service = require("./service")
-const serviceConfig = require("./serviceConfig")
-const notificationEvent = require("./notificationEvent")
-const channel = require("./channel")
-
+const system = require("./system");
+const service = require("./service");
+const serviceConfig = require("./serviceConfig");
+const notificationEvent = require("./notificationEvent");
+const channel = require("./channel");
+const { requestServeCheck } = require("../../middlewares/core.middlewares");
 
 module.exports = () => {
+  // system route
+  router.use("/system", system);
 
-    // system route
-    router.use("/system", system)
+  // service route
+  router.use("/service", requestServeCheck, service);
 
+  // service route
+  router.use("/service-config", requestServeCheck, serviceConfig);
 
-    // service route
-    router.use("/service", service)
+  // notification event
+  router.use("/notification-event", requestServeCheck, notificationEvent);
 
-    // service route
-    router.use("/service-config", serviceConfig)
+  // channel route
+  router.use("/channel", requestServeCheck, channel);
 
-    // notification event
-    router.use("/notification-event", notificationEvent)
-
-    // channel route
-    router.use("/channel", channel)
-
-
-    return router;
+  return router;
 };
