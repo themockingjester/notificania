@@ -18,22 +18,23 @@ async function startServer() {
 
   app.use("/apis", createRoutes());
 
-  // Listen for termination signals
-  process.on("SIGINT", gracefulShutdown);
-  process.on("SIGTERM", gracefulShutdown);
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     logger.info(`Server is running on ${PORT} 🚀`);
   });
 
   // Handle unexpected errors
   process.on("uncaughtException", (err) => {
     console.error("Uncaught Exception:", err);
-    gracefulShutdown();
+    gracefulShutdown(server);
   });
 
   process.on("unhandledRejection", (err) => {
     console.error("Unhandled Rejection:", err);
-    gracefulShutdown();
+    gracefulShutdown(server);
   });
+
+  // Listen for termination signals
+  process.on("SIGINT", () => gracefulShutdown(server));
+  process.on("SIGTERM", () => gracefulShutdown(server));
 }
 startServer();

@@ -19,6 +19,7 @@ class KafkaMessageListener {
   async initialize() {
     await exportedDIContainer.messageChannels.kafka.consumer.consumer.consumer.run(
       {
+        autoCommit: false, // ✅ Disable auto-commit
         eachMessage: async ({
           topic,
           partition,
@@ -26,6 +27,16 @@ class KafkaMessageListener {
           heartbeat,
           pause,
         }) => {
+          if (exportedDIContainer.SHUTTING_DOWN) {
+            logger.warn(
+              "Shutdown in progress. Skipping new messages by kafka."
+            );
+            // NOT commit the offset during shutdown
+            await heartbeat();
+            return; // Skip processing new messages
+          }
+
+          exportedDIContainer.ONGOING_TASKS += 1;
           let { key: messageKey, value } = message;
           messageKey = messageKey.toString();
           logger.info(`Received message to process ${messageKey}`, {
@@ -128,6 +139,16 @@ class KafkaMessageListener {
                     .SUCCESSFULLY_PROCESSED_MESSAGE_EXPIRY,
               });
             }
+            // ✅ Manually commit offset AFTER processing
+            await exportedDIContainer.messageChannels.kafka.consumer.consumer.consumer.commitOffsets(
+              [
+                {
+                  topic,
+                  partition,
+                  offset: (BigInt(message.offset) + BigInt(1)).toString(),
+                },
+              ]
+            );
           } catch (error) {
             logger.error(
               `Failed to process message having key: ${messageKey}`,
@@ -161,6 +182,8 @@ class KafkaMessageListener {
                 CACHING_CONSTANTS.IN_APP_CACHES.DEFAULT_CACHE_EXPIRY
                   .SUCCESSFULLY_PROCESSED_MESSAGE_EXPIRY,
             });
+          } finally {
+            exportedDIContainer.ONGOING_TASKS -= 1;
           }
         },
       }
