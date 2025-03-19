@@ -2,6 +2,8 @@
 const config = require("../config.json");
 const { logger } = require("./utils/logger");
 const DI_CONTAINER = {
+  ONGOING_TASKS: 0,
+  SHUTTING_DOWN: false,
   config: config,
   databaseHandler: null,
   databaseHandlerObject: null,

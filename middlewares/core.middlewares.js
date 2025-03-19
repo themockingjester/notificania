@@ -1,9 +1,9 @@
 const { HTTP_CODES } = require("../src/constants/httpCodes.constant");
-const { config } = require("../src/di-container");
+const { exportedDIContainer } = require("../src/exportedDiContainer");
 const { generateResponse } = require("../src/utils/common.utils");
 
 function requestServeCheck(req, res, next) {
-  if (!config.SERVER.SHOULD_SERVE_CLIENT_REQUESTS) {
+  if (!exportedDIContainer.config.SERVER.SHOULD_SERVE_CLIENT_REQUESTS) {
     return res
       .status(HTTP_CODES.SERVICE_UNAVILABLE)
       .send(
