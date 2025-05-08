@@ -9,15 +9,15 @@ const {
 } = require("../../constants/messangingChannel.constant");
 const { logger } = require("../../di-container");
 const dataWareHouseHelperFunctions = require("../../utils/dataWareHouseUtils/dataWareHouseHelperFunctions");
-const firebaseMessageProcessor = require("./firebase.message.processor");
+const pushNotificationMessageProcessor = require("./push_notification.message.processor");
 const mailMessageProcessor = require("./mail.message.processor");
 const smsMessageProcessor = require("./sms.message.processor");
 const getMessageProcessor = (serviceType) => {
   if (
     serviceType ==
-    APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES.FIREBASE_PUSH_NOTIFICATION
+    APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES.PUSH_NOTIFICATION
   ) {
-    return firebaseMessageProcessor;
+    return pushNotificationMessageProcessor;
   } else if (
     serviceType == APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES.SEND_MAIL
   ) {
@@ -35,9 +35,11 @@ const getMessageProcessor = (serviceType) => {
 
 const processMessageByProcessor = async (message) => {
   const { messageProcessor, key } = message;
+
   if (
     messageProcessor.processorType ==
-    APPLICATION_CONSTANTS.SUPPORTED_MESSAGE_PROCESSOR.FIREBASE_MESSAGE_PROCESSOR
+    APPLICATION_CONSTANTS.SUPPORTED_MESSAGE_PROCESSOR
+      .PUSH_NOTIFICATION_MESSAGE_PROCESSOR
   ) {
     await dataWareHouseHelperFunctions.insertToWareHouseNotificationDetailedLogs(
       {
@@ -54,7 +56,7 @@ const processMessageByProcessor = async (message) => {
             .PROCESS_STATUS.IN_PROGRESS,
       }
     );
-    return processFirebaseMessage(message);
+    return processPushNotificationMessage(message);
   } else if (
     messageProcessor.processorType ==
     APPLICATION_CONSTANTS.SUPPORTED_MESSAGE_PROCESSOR.MAIL_MESSAGE_PROCESSOR
@@ -102,11 +104,15 @@ const processMessageByProcessor = async (message) => {
   }
 };
 
-const processFirebaseMessage = (message) => {
+const processPushNotificationMessage = (message) => {
   const { serviceType } = message;
+  const messageKey = message.key.toString();
+  logger.info(
+    `Reached the core activity initiating function for the push message: ${messageKey}`
+  );
   if (
     serviceType ==
-    APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES.FIREBASE_PUSH_NOTIFICATION
+    APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES.PUSH_NOTIFICATION
   ) {
     return message.messageProcessor.pushNotificationAux(message);
   } else {
@@ -120,7 +126,7 @@ const processMailMessage = (message) => {
   const { serviceType } = message;
   const messageKey = message.key.toString();
   logger.info(
-    `Reached the core activity initiating function for the message message: ${messageKey}`
+    `Reached the core activity initiating function for the mail message: ${messageKey}`
   );
   if (serviceType == APPLICATION_CONSTANTS.SUPPORTED_SERVICE_TYPES.SEND_MAIL) {
     return message.messageProcessor.sendMailAux(message);
