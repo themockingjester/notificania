@@ -90,63 +90,58 @@ async function autoFillTestDataInDB() {
   }
 }
 const serverConfiguration = async ({}) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // connect to database
-      const selectedDatabase = config.DATABASE.DEFAULT;
-      if (!config.DATABASE[selectedDatabase]) {
-        throw new Error(
-          SERVER_SETUP_CONSTANTS.ERROR_MESSAGES.UNABLE_TO_IDENTIFY_CORRECT_DATABASE_FROM_CONFIG
-        );
-      }
-
-      const myDatabase = await DatabaseFactory(selectedDatabase);
-      await myDatabase.connect();
-      exportedDIContainer.databaseHandlerObject = myDatabase;
-      exportedDIContainer.databaseHandler = await myDatabase.getConnection();
-      logger.info(`Setup of database done! 🚀`);
-
-      // Load models
-      const models = await loadModels(exportedDIContainer.databaseHandler);
-      exportedDIContainer.dbModels = models;
-      logger.info(`DB models loaded successfully 🚀!`);
-
-      await exportedDIContainer.databaseHandler.sync({});
-      if (config.SERVER.MESSAGING_CHANNELS.APACHE_KAFKA.ENABLED) {
-        await setupKafka();
-      }
-
-      // Setting up messaging channels listeners
-      await setupMessageListerners();
-      logger.info(`Message channel listeners setup correctly 🚀!`);
-
-      // Setting up Redis cache
-      await setupRedis();
-
-      // setting up caching strategy
-      await setupCachingStrategy();
-
-      // Setting up Apache Cassandra
-      await setupApacheCassandra();
-
-      // setting up data ware housing strategy
-      await setupDataWareHousingStrategy();
-
-      // auto filling test data
-      await autoFillTestDataInDB();
-
-      resolve();
-    } catch (error) {
-      logger.error(
-        `Failed to setup server configuration error: ${error.message}`,
-        {
-          error: error.message,
-          stack: error.stack,
-        }
+  try {
+    // connect to database
+    const selectedDatabase = config.DATABASE.DEFAULT;
+    if (!config.DATABASE[selectedDatabase]) {
+      throw new Error(
+        SERVER_SETUP_CONSTANTS.ERROR_MESSAGES.UNABLE_TO_IDENTIFY_CORRECT_DATABASE_FROM_CONFIG
       );
-      reject();
     }
-  });
+
+    const myDatabase = await DatabaseFactory(selectedDatabase);
+    await myDatabase.connect();
+    exportedDIContainer.databaseHandlerObject = myDatabase;
+    exportedDIContainer.databaseHandler = await myDatabase.getConnection();
+    logger.info(`Setup of database done! 🚀`);
+
+    // Load models
+    const models = await loadModels(exportedDIContainer.databaseHandler);
+    exportedDIContainer.dbModels = models;
+    logger.info(`DB models loaded successfully 🚀!`);
+
+    await exportedDIContainer.databaseHandler.sync({});
+    if (config.SERVER.MESSAGING_CHANNELS.APACHE_KAFKA.ENABLED) {
+      await setupKafka();
+    }
+
+    // Setting up messaging channels listeners
+    await setupMessageListerners();
+    logger.info(`Message channel listeners setup correctly 🚀!`);
+
+    // Setting up Redis cache
+    await setupRedis();
+
+    // setting up caching strategy
+    await setupCachingStrategy();
+
+    // Setting up Apache Cassandra
+    await setupApacheCassandra();
+
+    // setting up data ware housing strategy
+    await setupDataWareHousingStrategy();
+
+    // auto filling test data
+    await autoFillTestDataInDB();
+  } catch (error) {
+    logger.error(
+      `Failed to setup server configuration error: ${error.message}`,
+      {
+        error: error.message,
+        stack: error.stack,
+      }
+    );
+  }
 };
 
 module.exports = {
