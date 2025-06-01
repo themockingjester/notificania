@@ -5,7 +5,7 @@ Notificania is a tool which allows you to communicate with your clients or custo
 
 #### Supported messages:
 1. Emails 📧
-2. Firebase Push Notifications 🔔  (In Next Release)
+2. Firebase Push Notifications 🔔 
 3. Apple Push Notification 🔔 (In Next Release)
 4. SMS 💬
 5. Whatsapp Message 💬 (In Development)
