@@ -177,25 +177,20 @@ class FirebasePushNotificationStrategy extends PushNotificationStrategy {
   async sendPushNotificationToUser(firebasePushNotificationData) {
     let { eventId, deviceFcmToken, notification, appName } = firebasePushNotificationData;
     
-    try {
-      // Get the initialized app using the unique app name
-      const app = admin.app(appName);
-      if (!app) {
-        throw new Error(`Firebase app ${appName} not found`);
-      }
-
-      logger.info(`Sending push notification using Firebase app ${appName}`);
-      const response = await app.messaging().send({
-        token: deviceFcmToken,
-        notification: notification,
-      });
-      
-      logger.info(`Successfully sent push notification for app ${appName}`);
-      return response;
-    } catch (error) {
-      logger.error(`Error sending push notification for app ${appName}:`, error);
-      throw error;
+    // Get the initialized app using the unique app name
+    const app = admin.app(appName);
+    if (!app) {
+      throw new Error(`Firebase app ${appName} not found`);
     }
+
+    logger.info(`Sending push notification using Firebase app ${appName}`);
+    const response = await app.messaging().send({
+      token: deviceFcmToken,
+      notification: notification,
+    });
+    
+    logger.info(`Successfully sent push notification for app ${appName}`);
+    return response;
   }
 }
 
