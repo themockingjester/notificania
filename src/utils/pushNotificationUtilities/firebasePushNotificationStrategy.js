@@ -49,17 +49,52 @@ class FirebasePushNotificationStrategy extends PushNotificationStrategy {
       );
     }
 
-    if (!admin.apps.find((app) => app.name === eventId)) {
-      admin.initializeApp(
-        { credential: admin.credential.cert(serviceAccountFile) },
-        eventId
+    try {
+      // Generate a unique app name using eventId and a hash of the service account
+      const serviceAccountHash = JSON.stringify(serviceAccountFile).split('').reduce((a, b) => {
+        a = ((a << 5) - a) + b.charCodeAt(0);
+        return a & a;
+      }, 0);
+      const uniqueAppName = `${eventId}_${serviceAccountHash}`;
+
+      // Check if app is already initialized with this exact service account
+      const existingApp = admin.apps.find((app) => app.name === uniqueAppName);
+      if (existingApp) {
+        logger.info(`Firebase app ${uniqueAppName} already initialized with this service account`);
+        return uniqueAppName;
+      }
+
+      // If there's an existing app with the same eventId but different service account, delete it
+      const oldApp = admin.apps.find((app) => app.name.startsWith(eventId + '_'));
+      if (oldApp) {
+        logger.info(`Deleting old Firebase app ${oldApp.name} to initialize with new service account`);
+        await oldApp.delete();
+      }
+
+      // Initialize new app with unique name
+      logger.info(`Initializing Firebase app ${uniqueAppName} with new service account`);
+      const app = admin.initializeApp(
+        { 
+          credential: admin.credential.cert(serviceAccountFile),
+          projectId: serviceAccountFile.project_id
+        },
+        uniqueAppName
       );
+
+      // Verify initialization
+      if (!app) {
+        throw new Error(`Failed to initialize Firebase app ${uniqueAppName}`);
+      }
+
+      logger.info(`Successfully initialized Firebase app ${uniqueAppName}`);
+      return uniqueAppName;
+    } catch (error) {
+      logger.error(`Error initializing Firebase app for event ${eventId}:`, error);
+      throw new Error(`Failed to initialize Firebase client: ${error.message}`);
     }
-    return true;
   }
 
-
-   notificationObjectRefactor(firebasePushNotificationData,message) {
+  notificationObjectRefactor(firebasePushNotificationData,message) {
     let { body } = message;
     let { notification } = body;
     if (!notification) {
@@ -75,9 +110,10 @@ class FirebasePushNotificationStrategy extends PushNotificationStrategy {
     notification.body = notificationBody;
     firebasePushNotificationData.notification = notification;
   }
+
   async sendPushNotification({ firebasePushNotificationData, message }) {
     const messageKey = message.key.toString();
-    this.notificationObjectRefactor(firebasePushNotificationData,message);
+    this.notificationObjectRefactor(firebasePushNotificationData, message);
     await dataWareHouseHelperFunctions.insertToWareHouseNotificationDetailedLogs(
       {
         message_id: messageKey,
@@ -112,16 +148,15 @@ class FirebasePushNotificationStrategy extends PushNotificationStrategy {
       }
     );
 
-    let isFirebaseInitiliased = await this.initializeFirebaseClient(
-      firebasePushNotificationData
-    );
-    if (!isFirebaseInitiliased) {
-      throw new Error(`Unbable to initialize firebase client`);
+    let appName = await this.initializeFirebaseClient(firebasePushNotificationData);
+    if (!appName) {
+      throw new Error(`Unable to initialize firebase client`);
     }
 
-    let result = await this.sendPushNotificationToUser(
-      firebasePushNotificationData
-    );
+    // Add the appName to the push notification data
+    firebasePushNotificationData.appName = appName;
+
+    let result = await this.sendPushNotificationToUser(firebasePushNotificationData);
     if (result) {
       return resultObject(
         true,
@@ -140,15 +175,27 @@ class FirebasePushNotificationStrategy extends PushNotificationStrategy {
   }
 
   async sendPushNotificationToUser(firebasePushNotificationData) {
-    let { eventId, deviceFcmToken, notification } =
-      firebasePushNotificationData;
-    const app = admin.app(eventId); // get the initialized app
-    const response = await app.messaging().send({
-      token: deviceFcmToken,
-      notification: notification,
+    let { eventId, deviceFcmToken, notification, appName } = firebasePushNotificationData;
+    
+    try {
+      // Get the initialized app using the unique app name
+      const app = admin.app(appName);
+      if (!app) {
+        throw new Error(`Firebase app ${appName} not found`);
+      }
+
+      logger.info(`Sending push notification using Firebase app ${appName}`);
+      const response = await app.messaging().send({
+        token: deviceFcmToken,
+        notification: notification,
+      });
       
-    });
-    return response;
+      logger.info(`Successfully sent push notification for app ${appName}`);
+      return response;
+    } catch (error) {
+      logger.error(`Error sending push notification for app ${appName}:`, error);
+      throw error;
+    }
   }
 }
 
