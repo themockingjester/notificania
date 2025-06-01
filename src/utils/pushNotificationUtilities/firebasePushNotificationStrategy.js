@@ -57,9 +57,27 @@ class FirebasePushNotificationStrategy extends PushNotificationStrategy {
     }
     return true;
   }
+
+
+   notificationObjectRefactor(firebasePushNotificationData,message) {
+    let { body } = message;
+    let { notification } = body;
+    if (!notification) {
+      throw new Error("Notification object is not present");
+    }
+    let notificationBody = "";
+    let { body: providedBody } = body?.notification;
+    if (providedBody) {
+      notificationBody = providedBody;
+    } else {
+      notificationBody = templateBody;
+    }
+    notification.body = notificationBody;
+    firebasePushNotificationData.notification = notification;
+  }
   async sendPushNotification({ firebasePushNotificationData, message }) {
     const messageKey = message.key.toString();
-
+    this.notificationObjectRefactor(firebasePushNotificationData,message);
     await dataWareHouseHelperFunctions.insertToWareHouseNotificationDetailedLogs(
       {
         message_id: messageKey,
@@ -128,6 +146,7 @@ class FirebasePushNotificationStrategy extends PushNotificationStrategy {
     const response = await app.messaging().send({
       token: deviceFcmToken,
       notification: notification,
+      
     });
     return response;
   }

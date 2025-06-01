@@ -97,18 +97,7 @@ class PushNotificationMessageProcessor {
     let senderUsed = "";
     let { eventConfig, body, templateBody } = message;
 
-    let { notification } = body;
-    if (!notification) {
-      throw new Error("Notification object is not present");
-    }
-    let notificationBody = "";
-    let { body: providedBody } = body?.notification;
-    if (providedBody) {
-      notificationBody = providedBody;
-    } else {
-      notificationBody = templateBody;
-    }
-    notification.body = notificationBody;
+    
     logger.info(
       `Message reached to main sendPushNotification method : ${messageKey}`
     );
@@ -136,7 +125,7 @@ class PushNotificationMessageProcessor {
           eventConfig,
           body: templateBody,
           eventId: body.eventId,
-          notification: notification,
+          notification: body.notification,
         },
         message: message,
       };
